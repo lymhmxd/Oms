@@ -10,6 +10,13 @@
             "name": "Edge",
             "url": "http://localhost:8000",
             "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Chrome",
+            "url": "http://localhost:8000",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }
