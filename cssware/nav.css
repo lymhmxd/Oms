@@ -1,0 +1,27 @@
+#nav {
+    background-color: #1939a3
+}
+
+#nav div {
+    width: 1100px;
+    line-height: 35px;
+}
+
+#nav div span {
+    height: 35px;
+    color: white;
+    padding: 0 25px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#nav a {
+    color: white;
+    text-decoration: none
+}
+
+#nav span:hover {
+    background-color: #d40639;
+    font-size: 16px;
+}
