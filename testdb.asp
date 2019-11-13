@@ -11,7 +11,7 @@
     sql = "SELECT * FROM Connection"
     set rs = cnn.execute(sql)
     While Not rs.EOF
-        response.write connectstr(rs.Fields(2),rs.Fields(3),rs.Fields(4),rs.Fields(5),rs.Fields(6))
+        response.write connectstr(rs.Fields(2),rs.Fields(3),rs.Fields(4),rs.Fields(5),rs.Fields(6)) & "<br />"
         rs.MoveNext
     Wend
 %>

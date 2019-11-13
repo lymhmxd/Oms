@@ -1,9 +1,19 @@
 #content{
-    width: 1100px;
-}
+    width: 1100px;}
 #content table{
-    border: 1px solid burlywood;
     width: 100%;
-    border-collapse: collapse;
-    border-spacing: 1p;
+    margin: 20px 0;
+    border: 1px solid #1939a3;
+}
+#content table td{
+    border: 1px solid #1939a3;
+    border-spacing: 0;
+    border-collapse: 0;
+    text-align: center;
+}
+#content table th{
+    border: 1px solid #1939a3;
+    border-spacing: 0;
+    border-collapse: 0;
+    text-align: center;
 }

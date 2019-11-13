@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>TIENS运维管理平台</title>
 	<link rel="stylesheet" href="/cssware/gobal.css">
 	<link rel="stylesheet" href="/cssware/nav.css">
@@ -11,29 +11,30 @@
 	<!--#include virtual="database/connect.asp"-->
 </head>
 
-<body>
+<body style="background-color: lightyellow;">
 	<div id="nav">
 		<div>
 			<%
-				set cnn = Server.CreateObject("ADODB.Connection")
-				cnn.open connectstring
-				sql = "select * from MenuStrcture"
-				set rs = cnn.execute(sql)
-				While Not rs.EOF
-					Response.Write "<span><a href='" & rs.Fields("MenuUrl") & "'>" & rs.Fields("MenuName")& "</a></span>"
-					rs.MoveNext
+				set cnnmariadb = Server.CreateObject("ADODB.Connection")
+				cnnmariadb.open connectstring
+				sqlMenuStrcture = "select * from MenuStrcture"
+				set rsMenuStrcture = cnnmariadb.execute(sqlMenuStrcture)
+				While Not rsMenuStrcture.EOF
+					Response.Write "<span><a href='" & rsMenuStrcture.Fields("MenuUrl") & "'>" & rsMenuStrcture.Fields("MenuName") & "</a></span>"
+					rsMenuStrcture.MoveNext
 				Wend
-				rs.Close
-				Set rs = Nothing
+				rsMenuStrcture.Close
+				Set rsMenuStrcture = Nothing
 			%>
 		</div>
 	</div>
 	<div id="content">
-		<table>
+		<table cellspacing=0px cellpadding=0px >
 			<tr>
+				<th>位置</th>
 				<%
 					sql="SELECT * FROM Dashboard"
-					set rs = cnn.execute(sql)
+					set rs = cnnmariadb.execute(sql)
 					While Not rs.EOF
 						Response.Write "<th>" & rs.Fields("title") & "</th>"
 						rs.MoveNext
@@ -42,39 +43,44 @@
 					Set rs = Nothing
 				%>
 			</tr>
-			</table>
-		<%
-			sqlConnection = "SELECT * FROM Connection"
-			set rsConnection = cnn.execute(sqlConnection) '打开Connection的游标用于遍历每一个实例的Dashboard
-			While Not rsConnection.EOF
-				dim connectstringDashboard
-				set cnn_Dashboard = Server.CreateObject("ADODB.Connection")
-		    	cnnDashboard.open connectstr(rsConnection.Fields("Driver"),rsConnection.Fields("server"),rsConnection.Fields("database"),rsConnection.Fields("uid"),rsConnection.Fields("pwd"))
-				sqldashboard="select * from Dashboard"
-				set rsdashboard = cnn.execute(sqldashboard) '打开dashboard的游标用于轮询每一条执行的sql
-				While Not rsdashboard.EOF
-					sql_Dashboard = rsdashboard.Fields("sqlchar")
-					set rs_Dashboard = cnn_Dashboard.execute(sql_Dashboard) '打开目标数据库的游标用于遍历每一条结果
-					While Not rs_Dashboard.EOF
-						Response.Write rs_Dashboard.Fields("status") '输出遍历结果
-						rs_Dashboard.MoveNext
+			<% 	Codepage="65001"
+				sqlConnection = "SELECT * FROM Connection"
+				set rsConnection = cnnmariadb.execute(sqlConnection) '打开Connection的游标
+				While Not rsConnection.EOF
+					'建立到目标数据库的链接
+					set cnnTarget = Server.CreateObject("ADODB.Connection") 
+					cnnTarget.open connectstr(rsConnection.Fields("Driver"),rsConnection.Fields("server"),rsConnection.Fields("database"),rsConnection.Fields("uid"),rsConnection.Fields("pwd"))
+					'在主数据库中找到要对目标数据库进行的查询集合，并遍历每一条查询
+					sqlDashboard="select * from Dashboard"
+					set rsDashboard = cnnmariadb.execute(sqlDashboard)
+					Response.Write "<tr><td>" & rsConnection("Name") & "</td>"
+					While Not rsDashboard.EOF
+						set rsResult = cnnTarget.execute(rsDashboard.Fields("sqlchar")) '打开目标数据库的游标
+						Response.Write "<td>"
+						While Not rsResult.EOF
+							Response.Write rsResult.Fields("status") & "~" & rsResult.Fields("amount") & "~" & rsResult.Fields("Percent") & "<br />" '输出目标数据库的遍历结果
+							rsResult.MoveNext
+						Wend
+						Response.Write "</td>"
+						rsResult.Close
+						Set rsResult = Nothing
+						rsDashboard.MoveNext
 					Wend
-					rs_Dashboard.Close
-					Set rs_Dashboard = Nothing
-					cnn_Dashboard.Close
-					Set cnn_Dashboard = Nothing
-					rsdashboard.MoveNext
+					Response.Write "</tr>"
+					rsdashboard.Close
+					Set rsdashboard = Nothing
+					cnnTarget.close
+					Set cnnTarget = Nothing
+					rsConnection.MoveNext
 				Wend
-				rsdashboard.Close
-				Set rsdashboard = Nothing
-		    Wend
-			rsConnection.Close
-			Set rsConnection = Nothing
-		%>
+				rsConnection.Close
+				Set rsConnection = Nothing
+			%>
+		</table>
 </body>
 <%	
-	cnn.Close
-	Set cnn = Nothing
+	cnnmariadb.Close
+	Set cnnmariadb = Nothing
 %>
 
 </html>
